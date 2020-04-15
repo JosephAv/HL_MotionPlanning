@@ -1,0 +1,53 @@
+Ntask = 30;
+Nsubj = 39;
+Maxnumrep = 3;
+Datasets = cell(1,Nsubj*Ntask*Maxnumrep);
+tic
+for i = 1 : 1
+    
+    filename = ['DATA_to_share/S' num2str(i)];
+    addpath(filename)
+    IDS_Definition
+    HandM = HandIDS; %vettore contenente gli indici dei marker della mano
+    % RefM = ReferenceIDS;
+    % HandM = sort(HandM);
+            
+    for j = 1 : Ntask
+        for k = 1 : Maxnumrep
+            try
+                filename2 = ['S' num2str(i) '_' num2str(j) '_' num2str(k) '.mat']; % considera tutte le misure
+                tmp = load(filename2);  %  carica le misure
+                data = tmp.data;        %  seleziona solo il vettore "data"
+                len = size(data,2);        %  quanti istanti temporali dura il movimento
+                newdata = cell(len,1);
+                for m = 1 : len
+                    datatemp = data(m); %  si considera la singola cella
+                    datatemp = datatemp{1,1};
+                    quadtemp = zeros(4,4);     %  crea una cella che conterrà le posizioni dei marker all'e.e. per ogni istante
+                    for n = 1 : 40
+                        if ismember(datatemp(n,1), HandM)               % se l'indice del marker n-esimo è uno di quelli dell'e.e.
+                            tmp = datatemp(n,:);
+                            switch tmp(1)
+                                case HandM(1)
+                                    quadtemp(1,:) = tmp;
+                                case HandM(2)
+                                    quadtemp(2,:) = tmp;
+                                case HandM(3)
+                                    quadtemp(3,:) = tmp;
+                                case HandM(4)
+                                    quadtemp(4,:) = tmp;
+                            end
+                        end
+                    end                    
+                    newdata{m,1} = quadtemp;                                
+                end
+                Datasets{(i-1)*Ntask*Maxnumrep + (j-1)*Maxnumrep + k} = newdata;
+            catch
+                Datasets{(i-1)*Ntask*Maxnumrep + (j-1)*Maxnumrep + k} = [];
+            end
+        end
+    end
+    
+    rmpath(filename);
+end
+toc
