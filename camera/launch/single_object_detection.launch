@@ -1,0 +1,21 @@
+<launch>
+
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+  
+  <arg name="enable_pointcloud"         default="true"/>
+  <arg name="enable_sync"               default="true"/>
+  <arg name="align_depth"               default="true"/>
+  <arg name="filters"                   default="pointcloud"/>
+  
+  </include>
+
+  <node name="single_object_detection" pkg="camera" type="single_object_detection" output="screen" >
+  
+  <param name = "max_distance_z" value = "0.9" />
+  <param name = "min_distance_z" value = "0" />
+  <param name = "max_distance_y" value = "0.2" />
+  <param name = "min_distance_y" value = "-1" />
+  
+  </node>
+
+</launch>
