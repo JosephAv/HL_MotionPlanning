@@ -238,11 +238,11 @@ include_directories(
   #target_link_libraries(image_convert ${catkin_LIBRARIES} ${OpenCV_INCLUDE_DIRS})
   ## add_dependencies(image_convert camera_generate_messages_cpp)
 
-  add_executable(1_object_detection src/1_object_detection.cpp)
-  target_link_libraries(1_object_detection ${catkin_LIBRARIES} ${OpenCV_LIBS})
+  add_executable(single_object_detection src/single_object_detection.cpp)
+  target_link_libraries(single_object_detection ${catkin_LIBRARIES} ${OpenCV_LIBS})
   
-  add_executable(multiple_object_detection src/multiple_object_detection.cpp)
-  target_link_libraries(multiple_object_detection ${catkin_LIBRARIES} ${OpenCV_LIBS})
+  add_executable(multiple_object_detection_color src/multiple_object_detection_color.cpp)
+  target_link_libraries(multiple_object_detection_color ${catkin_LIBRARIES} ${OpenCV_LIBS})
   
   
   
