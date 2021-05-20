@@ -1,5 +1,3 @@
-// first run: roslaunch realsense2_camera rs_camera.launch filters:=pointcloud
-
 #include <iostream>
 
 #include <ros/ros.h>
