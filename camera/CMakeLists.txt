@@ -244,6 +244,12 @@ include_directories(
   add_executable(multiple_object_detection_color src/multiple_object_detection_color.cpp)
   target_link_libraries(multiple_object_detection_color ${catkin_LIBRARIES} ${OpenCV_LIBS})
   
+  add_executable(PCA_6 src/PCA_6.cpp)
+  target_link_libraries(PCA_6 ${catkin_LIBRARIES} ${OpenCV_LIBS})
+  
+  add_executable(PCA_8 src/PCA_8.cpp)
+  target_link_libraries(PCA_8 ${catkin_LIBRARIES} ${OpenCV_LIBS})
+  
   
   
   
