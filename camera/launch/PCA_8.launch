@@ -1,0 +1,29 @@
+<launch>
+
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+  
+  <arg name="enable_pointcloud"         default="true"/>
+  <arg name="enable_sync"               default="true"/>
+  <arg name="align_depth"               default="true"/>
+  <arg name="filters"                   default="pointcloud"/>
+  
+  </include>
+
+
+  <node name="PCA_8" pkg="camera" type="PCA_8" output="screen">
+  
+  <param name = "max_distance_z" value = "1.05" />
+  <param name = "min_distance_z" value = "0" />
+  <param name = "max_distance_y" value = "0.078" />
+  <param name = "min_distance_y" value = "-1" />
+  <param name = "pos_camera_x" value = "-0.55" />
+  <param name = "pos_camera_y" value = "0.51" />
+  <param name = "pos_camera_z" value = "0" />
+  <param name = "roll_camera" value = "0" />
+  <param name = "pitch_camera" value = "0" />
+  <param name = "yaw_camera" value = "0" />
+  <param name = "inclination_camera" value = "16" />
+  
+  </node>
+
+</launch>
