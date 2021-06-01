@@ -4,7 +4,7 @@ Questo codice è ancora un work in progress dato che lo sto sviluppando per pote
 
 Prima di lanciare il nodo "hl_planning" è necessario lanciare da terminale i seguenti comandi per simulare le comunicazioni con quello che sarà il controllore del Franka:
 
-1) rostopic pub /franka_ee_pose -r 10 geometry_msgs/Pose '{position: {x: 1, y: 2z: 3}, orientation: {x: 0, y: 0, z: 0, w: 1}}'
+1) rostopic pub /franka_ee_pose -r 10 geometry_msgs/Pose '{position: {x: 1, y: 2, z: 3}, orientation: {x: 0, y: 0, z: 0, w: 1}}'
 
 2) rostopic echo /equilibrium_pose
 
