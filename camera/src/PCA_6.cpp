@@ -424,24 +424,11 @@ void computeVelocity(){
 		float c = (positions.poses[0].position.z - positions.poses[1].position.z);
 		c = c*c;
 		float dist = sqrt((a+b+c)/3);
-
-		if(dist <= 0.0015 ){
-			//ROS_INFO("è fermo");
-			positions.poses[1].position.x = (positions.poses[1].position.x + positions.poses[0].position.x)/2;
-			positions.poses[1].position.y = (positions.poses[1].position.y + positions.poses[0].position.y)/2;
-			positions.poses[1].position.z = (positions.poses[1].position.z + positions.poses[0].position.z)/2;
-
-			velocity.linear.x = 0;
-			velocity.linear.y = 0;
-			velocity.linear.z = 0;
-		}
-		else{
 			
-			velocity.linear.x = (positions.poses[1].position.x - positions.poses[0].position.x)/delta_T;
-			velocity.linear.y = (positions.poses[1].position.y - positions.poses[0].position.y)/delta_T;
-			velocity.linear.z = (positions.poses[1].position.z - positions.poses[0].position.z)/delta_T;
-			//ROS_INFO("si muove con v = (%f,%f,%f)",velocity.linear.x, velocity.linear.y, velocity.linear.z);
-		}
+		velocity.linear.x = (positions.poses[1].position.x - positions.poses[0].position.x)/delta_T;
+		velocity.linear.y = (positions.poses[1].position.y - positions.poses[0].position.y)/delta_T;
+		velocity.linear.z = (positions.poses[1].position.z - positions.poses[0].position.z)/delta_T;
+		//ROS_INFO("si muove con v = (%f,%f,%f)",velocity.linear.x, velocity.linear.y, velocity.linear.z);
 	}
 
 }
@@ -455,47 +442,31 @@ void computeAngularVelocity(Eigen::Quaternionf qf){
 	float c = (positions.poses[0].orientation.z - positions.poses[1].orientation.z);
 	
 	float d = (positions.poses[0].orientation.w - positions.poses[1].orientation.w);
+
+
 	
 
-	float dist = 0.01;
+	float qw_dot = (positions.poses[1].orientation.w - positions.poses[0].orientation.w)/delta_T;
+	float qx_dot = (positions.poses[1].orientation.x - positions.poses[0].orientation.x)/delta_T;
+	float qy_dot = (positions.poses[1].orientation.y - positions.poses[0].orientation.y)/delta_T;
+	float qz_dot = (positions.poses[1].orientation.z - positions.poses[0].orientation.z)/delta_T;
 
-	if (a > dist || a < -dist ||b > dist || b < -dist || c > dist || c < -dist|| d > dist || d < -dist) {
+	Eigen::Vector4f q_dot = {qw_dot, qx_dot, qy_dot, qz_dot};
+	Eigen::Vector4f W;
+	Eigen::Quaternionf q2 = qf.inverse();
 
-		float qw_dot = (positions.poses[1].orientation.w - positions.poses[0].orientation.w)/delta_T;
-		float qx_dot = (positions.poses[1].orientation.x - positions.poses[0].orientation.x)/delta_T;
-		float qy_dot = (positions.poses[1].orientation.y - positions.poses[0].orientation.y)/delta_T;
-		float qz_dot = (positions.poses[1].orientation.z - positions.poses[0].orientation.z)/delta_T;
+	float xd =  qx_dot * q2.w() + qy_dot * q2.z() - qz_dot * q2.y() + qw_dot * q2.x();
+	float yd = -qx_dot * q2.z() + qy_dot * q2.w() + qz_dot * q2.x() + qw_dot* q2.y();
+	float zd =  qx_dot * q2.y() - qy_dot * q2.x() + qz_dot * q2.w() + qw_dot * q2.z();
+	float wd = -qx_dot * q2.x() - qy_dot * q2.y() - qz_dot * q2.z() + qw_dot * q2.w();
 
-		Eigen::Vector4f q_dot = {qw_dot, qx_dot, qy_dot, qz_dot};
-		Eigen::Vector4f W;
-		Eigen::Quaternionf q2 = qf.inverse();
+	Eigen::Vector4f q_dot_q_star = {wd, xd, yd, zd};
 
-		float xd =  qx_dot * q2.w() + qy_dot * q2.z() - qz_dot * q2.y() + qw_dot * q2.x();
-	    float yd = -qx_dot * q2.z() + qy_dot * q2.w() + qz_dot * q2.x() + qw_dot* q2.y();
-	    float zd =  qx_dot * q2.y() - qy_dot * q2.x() + qz_dot * q2.w() + qw_dot * q2.z();
-	    float wd = -qx_dot * q2.x() - qy_dot * q2.y() - qz_dot * q2.z() + qw_dot * q2.w();
+	W = 2*q_dot_q_star;
 
-	    Eigen::Vector4f q_dot_q_star = {wd, xd, yd, zd};
-
-		W = 2*q_dot_q_star;
-
-		velocity.angular.x = W(1);
-		velocity.angular.y = W(2);
-		velocity.angular.z = W(3);
-
-	}
-
-	else{
-
-		positions.poses[1].orientation.x = (positions.poses[1].orientation.x + positions.poses[0].orientation.x)/2;
-		positions.poses[1].orientation.y = (positions.poses[1].orientation.y + positions.poses[0].orientation.y)/2;
-		positions.poses[1].orientation.z = (positions.poses[1].orientation.z + positions.poses[0].orientation.z)/2;
-		positions.poses[1].orientation.w = (positions.poses[1].orientation.w + positions.poses[0].orientation.w)/2;
-
-		velocity.angular.x = 0;
-		velocity.angular.y = 0;
-		velocity.angular.z = 0;
-	}
+	velocity.angular.x = W(1);
+	velocity.angular.y = W(2);
+	velocity.angular.z = W(3);
 
 	//ROS_INFO("omega = (	%f,%f,%f)",velocity.angular.x, velocity.angular.y, velocity.angular.z);
 
