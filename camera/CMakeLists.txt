@@ -250,6 +250,12 @@ include_directories(
   add_executable(PCA_8 src/PCA_8.cpp)
   target_link_libraries(PCA_8 ${catkin_LIBRARIES} ${OpenCV_LIBS})
   
+  add_executable(vision_node src/vision_node.cpp)
+  target_link_libraries(vision_node ${catkin_LIBRARIES})
+
+  add_executable(display src/display.cpp)
+  target_link_libraries(display ${catkin_LIBRARIES} ${OpenCV_LIBS})
+  
   
   
   
