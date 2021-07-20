@@ -27,3 +27,4 @@ ____________________
 REMEMBER:
 1) Change robot IP in "cartesian_impedance_controller_softbots.launch" file with actual robot IP
 2) Verify end-effector inertial information in Franka Desk for a correct gravity compensation
+3) Control at line 18 of "hl_planning.cpp" address of .csv file to be loaded
