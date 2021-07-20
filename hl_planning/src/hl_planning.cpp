@@ -15,7 +15,7 @@
 #define NUM_ROWS 24
 #define NUM_COLS 256
 
-std::string matrix_name = "/home/marco/catkin_ws/src/hl_planning/src/matrice_pc.csv";
+std::string matrix_name = "/home/mb/catkin_ws/src/hl_planning/src/matrice_pc.csv";
 std::ifstream file_stream(matrix_name);
 std::string data_row_str;
 std::vector<std::string> data_row;
@@ -113,18 +113,18 @@ geometry_msgs::Pose convert_vector_to_pose(Eigen::VectorXd input_vec){
     return output_pose;
 }
 
-void robotPoseCallback(const geometry_msgs::Pose& msg) //Ricordarsi di riportarlo in PoseStamped
+void robotPoseCallback(const geometry_msgs::PoseStamped& msg)
 {
     if (!initial_pose_init)
     {
-        msg_pose = msg;
+        msg_pose = msg.pose;
         std::cout << "Message received" << std::endl;
         std::cout << msg << std::endl;
         Eigen::Affine3d input_affine;
         Eigen::Vector3d traslazione;
         Eigen::Vector3d rpy;
         Eigen::Matrix3d mat_rotazione;
-        tf::poseMsgToEigen(msg,input_affine);
+        tf::poseMsgToEigen(msg_pose,input_affine);
         traslazione = input_affine.translation();
         mat_rotazione = input_affine.rotation();
         rpy = mat_rotazione.eulerAngles(0, 1, 2);
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 
     //Initialize frame trajectory publisher
     ROS_INFO("PUBLISHER INITIALIZATION");
-    ros::Publisher pub = node.advertise<geometry_msgs::Pose>("/equilibrium_pose", 1); //DA SISTEMARE SIA PER IL NOME CHE PER IL TIPO DI MSG
+    ros::Publisher pub = node.advertise<geometry_msgs::PoseStamped>("/franka/equilibrium_pose", 1); //DA SISTEMARE SIA PER IL NOME CHE PER IL TIPO DI MSG
 
     //Initialize starting pose subscriber
     ros::Subscriber robot_pose_sub = node.subscribe("/franka_ee_pose", 1, robotPoseCallback);
@@ -218,6 +218,7 @@ int main(int argc, char **argv)
             
             Eigen::VectorXd actual_pose;
             geometry_msgs::Pose actual_pose_msg;
+            geometry_msgs::PoseStamped actual_posestamped_msg;
 
             ros::Rate rate(1/dt);
 
@@ -226,12 +227,13 @@ int main(int argc, char **argv)
             {
                 actual_pose = ee_trajectory.col(i);
                 actual_pose_msg = convert_vector_to_pose(actual_pose);
+                actual_posestamped_msg.pose = actual_pose_msg;
                 if (i==0)
                 {
                     std::cout << "First Frame" << std::endl;
                     std::cout << actual_pose_msg << std::endl;
                 }
-                pub.publish(actual_pose_msg);
+                pub.publish(actual_posestamped_msg);
                 rate.sleep();
             }
 
