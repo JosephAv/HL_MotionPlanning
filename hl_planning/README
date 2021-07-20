@@ -1,1 +1,29 @@
-This package is done for beeing used with panda_controllers already realesed in Centro Piaggio github
+This package implements Human-Like Cartesian planning
+
+It is composed by following nodes:
+- hl_planning.cpp: taking in input the desired Cartesian pose and the time to perform movement it plan a trajectory from the actual pose to the desired one
+
+Developed for ROS Kinetic
+____________________
+
+NECESSARY PACKAGES:
+- ros_control-kinetic-devel
+- franka_ros-kinetic-devel
+- panda_controllers-palleschi-devel  [https://github.com/CentroEPiaggio/panda_controllers/tree/palleschi-devel]
+
+It is also necessary to install a Real Time Kernel. Instruction can be found in:
+- [https://frankaemika.github.io/docs/installation_linux.html]
+- [https://hmenn.github.io/pages/UbuntuRT_patch.html]
+____________________
+
+INSTRUCTION:
+1) launch the cartesian impedance controller:
+   roslaunch panda_controllers cartesian_impedance_controller_softbots.launch
+
+2) run the planner:
+   rosrun hl_planning hl_planning
+____________________
+
+REMEMBER:
+1) Change robot IP in "cartesian_impedance_controller_softbots.launch" file with actual robot IP
+2) Verify end-effector inertial information in Franka Desk for a correct gravity compensation
