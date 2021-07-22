@@ -2,6 +2,8 @@ This package implements Human-Like Cartesian planning
 
 It is composed by following nodes:
 - hl_planning.cpp: taking in input the desired Cartesian pose and the time to perform movement it plan a trajectory from the actual pose to the desired one
+- hl_obstacle.cpp: same goal of "hl_planning.cpp" implementing also obstacle avoidance (NEED MORE TESTS FOR DEBUG)
+- straight_line.cpp: plan a straight trajectory with constant velocity from the actual position of the robot EE to the desired one (fixed orientation)
 
 Developed for ROS Kinetic
 ____________________
