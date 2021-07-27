@@ -26,7 +26,7 @@ geometry_msgs::Pose msg_pose;
 
 
 // Convert xyzrpy vector to geometry_msgs Pose (PRESA DA PANDA-SOFTHAND -> TaskSequencer.cpp)
-geometry_msgs::Pose convert_vector_to_pose(Eigen::VectorXd input_vec){
+geometry_msgs::Pose convertVectorToPose(Eigen::VectorXd input_vec){
     
     // Creating temporary variables
     geometry_msgs::Pose output_pose;
@@ -77,13 +77,13 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg)
 int main(int argc, char **argv)
 {
     //Initialize the node
-    ROS_INFO("NODE INITIALIZATION");
-    ros::init(argc, argv, "HL_planner");
+    ROS_INFO("Stright Line Planner...node initialization...");
+    ros::init(argc, argv, "SL_planner");
     ros::NodeHandle node;
 
     //Initialize frame trajectory publisher
     ROS_INFO("PUBLISHER INITIALIZATION");
-    ros::Publisher pub = node.advertise<geometry_msgs::PoseStamped>("/franka/equilibrium_pose", 1); //DA SISTEMARE SIA PER IL NOME CHE PER IL TIPO DI MSG
+    ros::Publisher pub = node.advertise<geometry_msgs::PoseStamped>("/franka/equilibrium_pose", 1);
 
     //Initialize starting pose subscriber
     ros::Subscriber robot_pose_sub = node.subscribe("/franka_ee_pose", 1, robotPoseCallback);
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
             {
                 actual_pose = ee_trajectory.col(i);
                 std::cout << actual_pose <<std::endl;
-                actual_pose_msg = convert_vector_to_pose(actual_pose);
+                actual_pose_msg = convertVectorToPose(actual_pose);
                 std::cout << actual_pose_msg<<std::endl;
                 actual_posestamped_msg.pose = actual_pose_msg;
                 pub.publish(actual_posestamped_msg);
