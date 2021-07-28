@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
   double kPosStep{0.001};            // [m]
   double time_step;                  // [s]
   double sampling_time;              // [Hz]
+  double speed;                      // [m/s]
 
   if (!node.getParam("contact_force", force_z))         ROS_ERROR("Failed to get contact_force param");
   if (!node.getParam("ee_final_pos_x", ee_final_pos_x)) ROS_ERROR("Failed to get ee_final_pos_x param");

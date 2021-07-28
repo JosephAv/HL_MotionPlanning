@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="hl_planning" type="straight_line" name ="tactip_node_1">
+    <param name = "contact_force" type = "double" value = "0.5">
+    <param name = "ee_final_pos_x" type = "double" value = "0">
+    <param name = "ee_final_pos_y" type = "double" value = "0.1">
+    <param name = "duration" type = "double" value = "5">
+  </node>
+</launch>

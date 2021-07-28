@@ -216,7 +216,7 @@ void obs_traj_computation(Eigen::VectorXd inizio, Eigen::VectorXd fine, Eigen::V
     {
         Eigen::Vector3d offset;
         offset << 0.5, 0, 0.5;
-        candidato_vp = 0.5*Eigen::Vector3d::Random(); //SETTARE LO SPAZIO DI CAMPIONAMENTO
+        candidato_vp = 0.5*Eigen::Vector3d::Random() + offset; //SETTARE LO SPAZIO DI CAMPIONAMENTO
         diff_1 = candidato_vp- inizio_pos;
         diff_2 = fine_pos - candidato_vp;
         l_1 = diff_1.norm();
@@ -302,7 +302,7 @@ int main(int argc, char **argv)
 
     //Obstacle definition
     Eigen::Vector4d obstacles;
-    obstacles << 0.3, 0, 0.1, 0.15;
+    obstacles << 0.3, 0, 0.2, 0.15;
 
     //Time axis definition
     Eigen::VectorXd t;
@@ -342,8 +342,14 @@ int main(int argc, char **argv)
         {
             ROS_INFO("Trajectory Computation");
             //Trajectory computation
+            ros::Time begin = ros::Time::now();
             obs_traj_computation(initial_EE_point, final_EE_point, initial_velocity, final_velocity, t_start, t_end, obstacles);
+            ros::Time end = ros::Time::now();
 
+            ros::Duration difference;
+            difference = end - begin;
+
+            std::cout << "Computation Time: " << difference << std::endl;
             
             Eigen::VectorXd actual_pose;
             geometry_msgs::Pose actual_pose_msg;
