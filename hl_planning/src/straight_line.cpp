@@ -52,11 +52,18 @@ int main(int argc, char **argv) {
   //Initialize the node
   ROS_INFO("Stright Line Planner...node initialization...");
   ros::init(argc, argv, "SL_planner");
-  ros::NodeHandle node("~");
+
+  ros::NodeHandle node("~");  // private namespace (i.e., "/node_name") node handle
+  ros::NodeHandle public_node;// public namespace (i.e., "/" or "/my_ns") node handle 
+
+  std::string name_space;
+  name_space = public_node.getNamespace();
+
+  ROS_ERROR_STREAM("Node ns: " << name_space);
 
   //Initialize frame trajectory publisher
   ROS_INFO("PUBLISHER INITIALIZATION");
-  ros::Publisher pub = node.advertise<geometry_msgs::PoseStamped>("/franka/equilibrium_pose", 1);
+  ros::Publisher pub = public_node.advertise<geometry_msgs::PoseStamped>("equilibrium_pose", 1);
 
   //Initialize starting pose subscriber
   ros::Subscriber robot_pose_sub = node.subscribe("/franka_ee_pose", 1, robotPoseCallback);
