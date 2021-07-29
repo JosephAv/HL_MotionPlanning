@@ -1,0 +1,10 @@
+<launch>
+
+  <group ns="franka">
+    
+    <rosparam command="load" file="$(find hl_planning)/config/my_conf.yaml" />
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_controller_softbots"/>
+    
+  </group>
+
+</launch>
