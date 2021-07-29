@@ -58,7 +58,8 @@ int main(int argc, char **argv) {
 
   std::string name_space;
   name_space = public_node.getNamespace();
-
+  ROS_ERROR_STREAM("Node ns: " << name_space);
+  name_space = node.getNamespace();
   ROS_ERROR_STREAM("Node ns: " << name_space);
 
   //Initialize frame trajectory publisher
@@ -66,7 +67,7 @@ int main(int argc, char **argv) {
   ros::Publisher pub = public_node.advertise<geometry_msgs::PoseStamped>("equilibrium_pose", 1);
 
   //Initialize starting pose subscriber
-  ros::Subscriber robot_pose_sub = node.subscribe("/franka_ee_pose", 1, robotPoseCallback);
+  ros::Subscriber robot_pose_sub = public_node.subscribe("/franka_ee_pose", 1, robotPoseCallback);
 
   ROS_INFO("Variable definitions");
   //Starting and ending times definition
