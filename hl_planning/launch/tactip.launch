@@ -9,6 +9,9 @@
       <arg name="load_gripper" value="$(arg load_gripper)" />
     </include>
 
+    <!-- set internal controller joint impedance -->
+    <node pkg="rosservice" type="rosservice" name="global_loc" args="call --wait /set_joint_impedance 10 10 10 10 10 10 10"/>
+
     <rosparam command="load" file="$(find panda_controllers)/config/panda_controllers.yaml" />
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_controller_softbots"/>
 
