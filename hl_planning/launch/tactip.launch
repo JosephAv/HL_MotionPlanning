@@ -9,7 +9,7 @@
       <arg name="load_gripper" value="$(arg load_gripper)" />
     </include>
 
-    <!-- set internal controller joint impedance -->
+    <!-- set internal controller joint impedance. it is wrong the service is /franka/franka_control/set_joint_impedance -->
     <node pkg="rosservice" type="rosservice" name="global_loc" args="call --wait /set_joint_impedance 10 10 10 10 10 10 10"/>
 
     <rosparam command="load" file="$(find panda_controllers)/config/panda_controllers.yaml" />
