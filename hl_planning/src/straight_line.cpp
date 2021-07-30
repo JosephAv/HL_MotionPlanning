@@ -14,6 +14,7 @@
 
 Eigen::VectorXd initial_EE_point(3);
 bool initial_pose_init = false;
+geometry_msgs::Quaternion initial_orientation;
 
 // Convert xyzrpy vector to geometry_msgs Pose (PRESA DA PANDA-SOFTHAND -> TaskSequencer.cpp)
 geometry_msgs::Pose convertVectorToPose(Eigen::VectorXd input_vec) {
@@ -28,17 +29,18 @@ geometry_msgs::Pose convertVectorToPose(Eigen::VectorXd input_vec) {
   output_affine.translation() = translation;
   rotation << 1,  0,  0,
               0, -1,  0,
-              0,  0, -1; 
+              0,  0, -1;
   output_affine.linear() = rotation;    
-  
   // Converting to geometry_msgs and returning
   tf::poseEigenToMsg(output_affine, output_pose);
+  output_pose.orientation = initial_orientation;
   return output_pose;
 }
 
 void robotPoseCallback(const geometry_msgs::PoseStamped& msg) {
   if (!initial_pose_init) {
       geometry_msgs::Pose msg_pose = msg.pose;
+      initial_orientation = msg_pose.orientation;
       Eigen::Affine3d input_affine;
       Eigen::Vector3d traslazione;
       tf::poseMsgToEigen(msg_pose,input_affine);
