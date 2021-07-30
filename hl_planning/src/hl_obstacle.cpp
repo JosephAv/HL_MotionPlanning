@@ -13,7 +13,7 @@
 
 
 #define NUM_ROWS 24
-#define NUM_COLS 256
+#define NUM_COLS 128
 
 std::string matrix_name = "/home/mb/catkin_ws/src/hl_planning/src/matrice_pc.csv";
 std::ifstream file_stream(matrix_name);
@@ -369,6 +369,7 @@ int main(int argc, char **argv)
                 actual_pose = final_trajectory.col(i);
                 actual_pose_msg = convert_vector_to_pose(actual_pose);
                 actual_posestamped_msg.pose = actual_pose_msg;
+                actual_posestamped_msg.header.stamp = ros::Time::now();
                 if (i==0)
                 {
                     std::cout << "First Frame" << std::endl;

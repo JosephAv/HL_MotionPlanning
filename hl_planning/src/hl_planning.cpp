@@ -13,7 +13,7 @@
 
 
 #define NUM_ROWS 24
-#define NUM_COLS 256
+#define NUM_COLS 128
 
 std::string matrix_name = "/home/mb/catkin_ws/src/hl_planning/src/matrice_pc.csv";
 std::ifstream file_stream(matrix_name);
@@ -233,8 +233,9 @@ int main(int argc, char **argv)
                     std::cout << "First Frame" << std::endl;
                     std::cout << actual_pose_msg << std::endl;
                 }
-                pub.publish(actual_posestamped_msg);
                 rate.sleep();
+                actual_posestamped_msg.header.stamp = ros::Time::now();
+                pub.publish(actual_posestamped_msg);
             }
 
             break;
