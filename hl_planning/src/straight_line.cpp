@@ -73,43 +73,44 @@ int main(int argc, char **argv) {
   //Starting and ending times definition
   double t_start = 0;                // [s]
   double t_end;                      // [s]
-  double ee_final_pos_x;             // [m]
-  double ee_final_pos_y;             // [m]
+  double ee_displacement_x;             // [m]
+  double ee_displacement_y;             // [m]
   double force_z;                    // [N]
   Eigen::VectorXd final_EE_point(3); // [m]
+  Eigen::VectorXd ee_displacement(3); // [m]
   std::int32_t steps_num;            // [adimensional]
   double kPosStep{0.001};            // [m]
   double time_step;                  // [s]
   double sampling_time;              // [Hz]
   double speed;                      // [m/s]
 
-  if (!node.getParam("contact_force", force_z))         ROS_ERROR("Failed to get contact_force param");
-  if (!node.getParam("ee_final_pos_x", ee_final_pos_x)) ROS_ERROR("Failed to get ee_final_pos_x param");
-  if (!node.getParam("ee_final_pos_y", ee_final_pos_y)) ROS_ERROR("Failed to get ee_final_pos_y param");
+  if (!node.getParam("contact_force", force_z))               ROS_ERROR("Failed to get contact_force param");
+  if (!node.getParam("ee_displacement_x", ee_displacement_x)) ROS_ERROR("Failed to get ee_final_pos_x param");
+  if (!node.getParam("ee_displacement_y", ee_displacement_y)) ROS_ERROR("Failed to get ee_final_pos_y param");
 
   if (force_z < 0) ROS_ERROR("Invalid contact force, must be > 0");
 
-  final_EE_point(0) = ee_final_pos_x;
-  final_EE_point(1) = ee_final_pos_y;
-  final_EE_point(2) = 0;
+  ee_displacement(0) = ee_displacement_x;
+  ee_displacement(1) = ee_displacement_y;
+  ee_displacement(2) = 0;
 
   if (!node.getParam("duration", t_end)) {
     if (!node.getParam("speed", speed)) {
       ROS_ERROR("Failed to get duration and speed params. Please set at least one of them");
     } else {
       if (speed <= 0) ROS_ERROR("Invalid speed value, must be > 0");
-      t_end = final_EE_point.norm() / speed;
+      t_end = ee_displacement.norm() / speed;
     }
   } else {
     if (t_end <= 0) ROS_ERROR("Invalid duration value, must be > 0");
-    speed = final_EE_point.norm() / t_end;
+    speed = ee_displacement.norm() / t_end;
   }
 
   ROS_INFO("Params getted correctly");
   
   time_step     = kPosStep / speed;
   sampling_time = 1.0 / time_step;
-  steps_num     = static_cast<std::int32_t>(round(final_EE_point.norm() / kPosStep));
+  steps_num     = static_cast<std::int32_t>(round(ee_displacement.norm() / kPosStep));
 
   ros::Rate rate(sampling_time);
   Eigen::MatrixXd ee_trajectory(3,steps_num);
@@ -122,8 +123,7 @@ int main(int argc, char **argv) {
       // print out info
       ROS_INFO("Trajectory Computation");
       //Trajectory computation
-      final_EE_point(2) = initial_EE_point(2); // same z-value, moves only on x-y plane
-      ee_trajectory     = (final_EE_point - initial_EE_point)*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+      ee_trajectory = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
 
       Eigen::VectorXd actual_pose(3);
       geometry_msgs::Pose actual_pose_msg;
@@ -133,13 +133,16 @@ int main(int argc, char **argv) {
 
       rate.reset();
       for (std::int32_t i = 0; i < steps_num; ++i) {
-        actual_pose                 = ee_trajectory.col(i);
-        actual_pose_msg             = convertVectorToPose(actual_pose);
-        actual_posestamped_msg.pose = actual_pose_msg;
+        actual_pose                         = ee_trajectory.col(i);
+        actual_pose_msg                     = convertVectorToPose(actual_pose);
+        actual_posestamped_msg.pose         = actual_pose_msg;
+        actual_posestamped_msg.header.seq   = i;
+        actual_posestamped_msg.header.stamp = ros::Time::now();
         pub.publish(actual_posestamped_msg);
         rate.sleep();
       }
       initial_pose_init = false;
+      ros::shutdown(); // only one run for now
     }
     ROS_INFO("WAITING INITIAL POSE");  
   }
