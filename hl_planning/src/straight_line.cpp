@@ -52,8 +52,8 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg) {
 }
 
 void ftDataCallback(const geometry_msgs::WrenchStamped& msg) {
-  force  << msg->wrench.force.x,  msg->wrench.force.y,  msg->wrench.force.z;
-  torque << msg->wrench.torque.x, msg->wrench.torque.y, msg->wrench.torque.z;
+  force  << msg.wrench.force.x,  msg.wrench.force.y,  msg.wrench.force.z;
+  torque << msg.wrench.torque.x, msg.wrench.torque.y, msg.wrench.torque.z;
 }
 
 int main(int argc, char **argv) {
