@@ -11,9 +11,13 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Wrench.h>
+#include <geometry_msgs/WrenchStamped.h>
 
 Eigen::VectorXd initial_EE_point(3);
 bool initial_pose_init = false;
+Eigen::Vector3d force;
+Eigen::Vector3d torque;
 
 // Convert xyzrpy vector to geometry_msgs Pose (PRESA DA PANDA-SOFTHAND -> TaskSequencer.cpp)
 geometry_msgs::Pose convertVectorToPose(Eigen::VectorXd input_vec) {
@@ -47,6 +51,11 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg) {
   } 
 }
 
+void ftDataCallback(const geometry_msgs::WrenchStamped& msg) {
+  force  << msg->wrench.force.x,  msg->wrench.force.y,  msg->wrench.force.z;
+  torque << msg->wrench.torque.x, msg->wrench.torque.y, msg->wrench.torque.z;
+}
+
 int main(int argc, char **argv) {
   //Initialize the node
   ROS_INFO("Stright Line Planner...node initialization...");
@@ -67,6 +76,8 @@ int main(int argc, char **argv) {
 
   //Initialize starting pose subscriber
   ros::Subscriber robot_pose_sub = public_node.subscribe("/franka_ee_pose", 1, robotPoseCallback);
+
+  ros::Subscriber ft_data_sub = public_node.subscribe("ft_data", 1, ftDataCallback);
 
   ROS_INFO("Variable definitions");
   //Starting and ending times definition
@@ -141,7 +152,14 @@ int main(int argc, char **argv) {
         rate.sleep();
       }
       initial_pose_init = false;
-      ros::shutdown(); // only one run for now
+
+      rate.reset();
+      for (;;) {
+        ros::spinOnce();
+        if (force.z() > 1.0) break;
+        ROS_INFO_STREAM("Normal force [N]: " << force.z());
+        rate.sleep();
+      }
     }
     ROS_INFO("WAITING INITIAL POSE");  
   }
