@@ -122,6 +122,7 @@ int main(int argc, char **argv) {
   geometry_msgs::Pose actual_pose_msg;
   geometry_msgs::PoseStamped actual_posestamped_msg;
   std::int16_t status = 0;
+  Eigen::VectorXd ee_vertical_disp(3);
 
   while (ros::ok()) {
     // check if it is necessary calling callbacks
@@ -149,7 +150,6 @@ int main(int argc, char **argv) {
       case 1: // touch the plate respecting the force limit
         if (!initial_pose_init) break;
         // define a vertical displacement
-        Eigen::VectorXd ee_vertical_disp(3);
         ee_vertical_disp << 0.0, 0.0, 1.0;
         // Trajectory computation
         ee_trajectory = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
