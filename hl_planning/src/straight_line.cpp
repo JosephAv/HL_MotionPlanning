@@ -64,12 +64,6 @@ int main(int argc, char **argv) {
   ros::NodeHandle node("~");  // private namespace (i.e., "/node_name") node handle
   ros::NodeHandle public_node;// public namespace (i.e., "/" or "/my_ns") node handle 
 
-  std::string name_space;
-  name_space = public_node.getNamespace();
-  ROS_ERROR_STREAM("Node ns: " << name_space);
-  name_space = node.getNamespace();
-  ROS_ERROR_STREAM("Node ns: " << name_space);
-
   //Initialize frame trajectory publisher
   ROS_INFO("PUBLISHER INITIALIZATION");
   ros::Publisher pub = public_node.advertise<geometry_msgs::PoseStamped>("equilibrium_pose", 1);
@@ -124,43 +118,77 @@ int main(int argc, char **argv) {
 
   ros::Rate rate(sampling_time);
   Eigen::MatrixXd ee_trajectory(3,steps_num);
+  Eigen::VectorXd actual_pose(3);
+  geometry_msgs::Pose actual_pose_msg;
+  geometry_msgs::PoseStamped actual_posestamped_msg;
+  std::int16_t status = 0;
 
   while (ros::ok()) {
     // check if it is necessary calling callbacks
     ros::spinOnce();
-    // if initial pose retrieved, plan!!!
-    if (initial_pose_init) {
-      // print out info
-      ROS_INFO("Trajectory Computation");
-      //Trajectory computation
-      ee_trajectory = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
-
-      Eigen::VectorXd actual_pose(3);
-      geometry_msgs::Pose actual_pose_msg;
-      geometry_msgs::PoseStamped actual_posestamped_msg;
-
-      ROS_INFO("Trajectory Publishing");
-
-      rate.reset();
-      for (std::int32_t i = 0; i < steps_num; ++i) {
-        actual_pose                         = ee_trajectory.col(i);
-        actual_pose_msg                     = convertVectorToPose(actual_pose);
-        actual_posestamped_msg.pose         = actual_pose_msg;
-        actual_posestamped_msg.header.seq   = i;
-        actual_posestamped_msg.header.stamp = ros::Time::now();
-        pub.publish(actual_posestamped_msg);
-        rate.sleep();
-      }
-      initial_pose_init = false;
-
-      rate.reset();
-      for (;;) {
-        ros::spinOnce();
-        if (force.z() > 1.0) break;
-        ROS_INFO_STREAM("Normal force [N]: " << force.z());
-        rate.sleep();
-      }
-    }
+    // switch on status to plan differently based on actual motion condition
+    switch (status) {
+      case 0: // set initial pose
+        if (!initial_pose_init) break;
+        //Trajectory computation
+        ee_trajectory = initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        // trajectory publishing
+        rate.reset();
+        for (std::int32_t i = 0; i < steps_num; ++i) {
+          actual_pose                         = ee_trajectory.col(i);
+          actual_pose_msg                     = convertVectorToPose(actual_pose);
+          actual_posestamped_msg.pose         = actual_pose_msg;
+          actual_posestamped_msg.header.seq   = i;
+          actual_posestamped_msg.header.stamp = ros::Time::now();
+          pub.publish(actual_posestamped_msg);
+          rate.sleep();
+        }
+        initial_pose_init = false;
+        status = 1;
+        break;
+      case 1: // touch the plate respecting the force limit
+        if (!initial_pose_init) break;
+        // define a vertical displacement
+        Eigen::VectorXd ee_vertical_disp(3);
+        ee_vertical_disp << 0.0, 0.0, 1.0;
+        // Trajectory computation
+        ee_trajectory = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        // trajectory publishing
+        rate.reset();
+        for (std::int32_t i = 0; i < steps_num; ++i) {
+          actual_pose                         = ee_trajectory.col(i);
+          actual_pose_msg                     = convertVectorToPose(actual_pose);
+          actual_posestamped_msg.pose         = actual_pose_msg;
+          actual_posestamped_msg.header.seq   = i;
+          actual_posestamped_msg.header.stamp = ros::Time::now();
+          pub.publish(actual_posestamped_msg);
+          ros::spinOnce();
+          if (std::fabs(force.z()) > force_z) break;
+          rate.sleep();
+        }
+        initial_pose_init = false;
+        status = 2;
+        break;
+      case 2: // move along the ee_displacement direction
+        if (!initial_pose_init) break;
+        //Trajectory computation
+        ee_trajectory = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        // trajectory publishing
+        rate.reset();
+        for (std::int32_t i = 0; i < steps_num; ++i) {
+          actual_pose                         = ee_trajectory.col(i);
+          actual_pose_msg                     = convertVectorToPose(actual_pose);
+          actual_posestamped_msg.pose         = actual_pose_msg;
+          actual_posestamped_msg.header.seq   = i;
+          actual_posestamped_msg.header.stamp = ros::Time::now();
+          pub.publish(actual_posestamped_msg);
+          rate.sleep();
+        }
+        initial_pose_init = false;
+        status = 3;
+        break;
+      default: break; // do nothing
+    }    
     ROS_INFO("WAITING INITIAL POSE");  
   }
   ROS_INFO("TASK COMPLETED");
