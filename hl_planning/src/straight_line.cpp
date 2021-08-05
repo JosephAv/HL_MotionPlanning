@@ -86,7 +86,6 @@ int main(int argc, char **argv) {
   double kPosStep{0.001};            // [m]
   double sampling_time;              // [Hz]
 
-  Eigen::MatrixXd ee_trajectory(3,steps_num);
   Eigen::VectorXd actual_pose(3);
   geometry_msgs::Pose actual_pose_msg;
   geometry_msgs::PoseStamped actual_posestamped_msg;
@@ -111,6 +110,10 @@ int main(int argc, char **argv) {
   sampling_time      = ee_displacement.norm() / (duration * kPosStep);
   steps_num          = static_cast<std::int32_t>(round(ee_displacement.norm() / kPosStep));
   
+  Eigen::MatrixXd ee_trajectory_0(3,300);
+  Eigen::MatrixXd ee_trajectory_1(3,500);
+  Eigen::MatrixXd ee_trajectory_2(3,steps_num);
+
   ros::Rate rate0(10); // [Hz]
   ros::Rate rate1(10); // [Hz]
   ros::Rate rate2(sampling_time); // [Hz]
@@ -123,12 +126,12 @@ int main(int argc, char **argv) {
       case 0: // set initial pose
         if (!initial_pose_init) break;
         //Trajectory computation
-        ee_trajectory = initial_EE_point*Eigen::RowVectorXd::Ones(300);
+        ee_trajectory_0 = initial_EE_point*Eigen::RowVectorXd::Ones(300);
         ROS_INFO("INIT POSE REACHING!!!");
         // trajectory publishing
         rate0.reset();
         for (std::int32_t i = 0; i < 300; ++i) {
-          actual_pose                         = ee_trajectory.col(i);
+          actual_pose                         = ee_trajectory_0.col(i);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
           actual_posestamped_msg.header.seq   = i;
@@ -148,14 +151,14 @@ int main(int argc, char **argv) {
         // define a vertical displacement
         ee_vertical_disp << 0.0, 0.0, -0.5; // [m]
         // Trajectory computation
-        ee_trajectory = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(500, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(500);
+        ee_trajectory_1 = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(500, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(500);
         ROS_INFO("TOUCH REACHING!!!");
         // trajectory publishing
         index = 0;
         rate1.reset();
         for (;;) {
-          if (index < 500) actual_pose = ee_trajectory.col(++index);
-          else             actual_pose = ee_trajectory.col(index-1);
+          if (index < 500) actual_pose = ee_trajectory_1.col(++index);
+          else             actual_pose = ee_trajectory_1.col(index-1);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
           actual_posestamped_msg.header.seq   = index;
@@ -172,11 +175,11 @@ int main(int argc, char **argv) {
       case 2: // move along the ee_displacement direction
         if (!initial_pose_init) break;
         //Trajectory computation
-        ee_trajectory = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        ee_trajectory_2 = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
         // trajectory publishing
         rate2.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
-          actual_pose                         = ee_trajectory.col(i);
+          actual_pose                         = ee_trajectory_2.col(i);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
           actual_posestamped_msg.header.seq   = i;
