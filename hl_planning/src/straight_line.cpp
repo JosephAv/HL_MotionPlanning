@@ -75,6 +75,8 @@ int main(int argc, char **argv) {
 
   ros::Subscriber ft_data_sub = public_node.subscribe("ft_data", 1, ftDataCallback);
 
+  ros::ServiceClient ft_sensor_client = n.serviceClient<ft_sensor::Calibration>("ft_sensor_calibration");
+
   ROS_INFO("Variable definitions");
   //Starting and ending times definition
   double t_start = 0;                // [s]
@@ -126,6 +128,8 @@ int main(int argc, char **argv) {
   std::int16_t status = 0;
   Eigen::VectorXd ee_vertical_disp(3);
   std::int32_t index = 0;
+  ft_sensor::Calibration ft_sensor_srv;
+  ft_sensor_srv.request.dummy = 0;
 
   while (ros::ok()) {
     // check if it is necessary calling callbacks
@@ -154,6 +158,9 @@ int main(int argc, char **argv) {
         break;
       case 1: // touch the plate respecting the force limit
         if (!initial_pose_init) break;
+        // f/t sensor calibration request
+        if (ft_sensor_client.call(ft_sensor_srv)) ROS_INFO("F/T sensor calibration succesfull");
+        else ROS_WARN("F/T sensor calibration failed");
         // define a vertical displacement
         ee_vertical_disp << 0.0, 0.0, -0.25;
         // Trajectory computation
