@@ -85,6 +85,7 @@ int main(int argc, char **argv) {
   std::int32_t steps_num;            // [adimensional]
   double kPosStep{0.001};            // [m]
   double sampling_time;              // [Hz]
+  std_srvs::Trigger trigger;
 
   Eigen::VectorXd actual_pose(3);
   geometry_msgs::Pose actual_pose_msg;
@@ -143,7 +144,7 @@ int main(int argc, char **argv) {
       case 1: // touch the plate respecting the force limit
         if (!initial_pose_init) break;
         // f/t sensor calibration request
-        if (ft_sensor_client.call()) ROS_INFO("F/T sensor calibration succesfull");
+        if (ft_sensor_client.call(trigger)) ROS_INFO("F/T sensor calibration succesfull");
         else ROS_ERROR("F/T sensor calibration failed");
         // define a vertical displacement
         ee_vertical_disp << 0.0, 0.0, -0.5; // [m]
