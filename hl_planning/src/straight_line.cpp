@@ -14,6 +14,8 @@
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/WrenchStamped.h>
 
+#include "ft_sensor/Calibration.h"
+
 Eigen::VectorXd initial_EE_point(3);
 bool initial_pose_init = false;
 Eigen::Vector3d force;
