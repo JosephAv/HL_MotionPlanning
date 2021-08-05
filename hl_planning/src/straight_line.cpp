@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
         ROS_INFO("INIT POSE REACHING!!!");
         // trajectory publishing
         rate0.reset();
-        for (std::int32_t i = 0; i < steps_num; ++i) {
+        for (std::int32_t i = 0; i < 300; ++i) {
           actual_pose                         = ee_trajectory.col(i);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
         //Trajectory computation
         ee_trajectory = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
         // trajectory publishing
-        rate.reset();
+        rate2.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
           actual_pose                         = ee_trajectory.col(i);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
           actual_posestamped_msg.header.seq   = i;
           actual_posestamped_msg.header.stamp = ros::Time::now();
           pub.publish(actual_posestamped_msg);
-          rate.sleep();
+          rate2.sleep();
         }
         initial_pose_init = false;
         status = 3;
