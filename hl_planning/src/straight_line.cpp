@@ -85,7 +85,18 @@ int main(int argc, char **argv) {
   std::int32_t steps_num;            // [adimensional]
   double kPosStep{0.001};            // [m]
   double sampling_time;              // [Hz]
+
+  Eigen::MatrixXd ee_trajectory(3,steps_num);
+  Eigen::VectorXd actual_pose(3);
+  geometry_msgs::Pose actual_pose_msg;
+  geometry_msgs::PoseStamped actual_posestamped_msg;
+  Eigen::VectorXd ee_vertical_disp(3);
+  ft_sensor::Calibration ft_sensor_srv;
+  std::int16_t status = 0;
+  std::int32_t index = 0;
   
+  ft_sensor_srv.request.dummy = 0;
+
   if (!node.getParam("contact_force", force_z))               ROS_ERROR("Failed to get contact_force param");
   if (!node.getParam("ee_displacement_x", ee_displacement_x)) ROS_ERROR("Failed to get ee_final_pos_x param");
   if (!node.getParam("ee_displacement_y", ee_displacement_y)) ROS_ERROR("Failed to get ee_final_pos_y param");
@@ -100,17 +111,10 @@ int main(int argc, char **argv) {
   sampling_time      = ee_displacement.norm() / (duration * kPosStep);
   steps_num          = static_cast<std::int32_t>(round(ee_displacement.norm() / kPosStep));
   
-  ros::Rate rate(sampling_time);
-  Eigen::MatrixXd ee_trajectory(3,steps_num);
-  Eigen::VectorXd actual_pose(3);
-  geometry_msgs::Pose actual_pose_msg;
-  geometry_msgs::PoseStamped actual_posestamped_msg;
-  std::int16_t status = 0;
-  Eigen::VectorXd ee_vertical_disp(3);
-  std::int32_t index = 0;
-  ft_sensor::Calibration ft_sensor_srv;
-  ft_sensor_srv.request.dummy = 0;
-
+  ros::Rate rate0(10); // [Hz]
+  ros::Rate rate1(10); // [Hz]
+  ros::Rate rate2(sampling_time); // [Hz]
+  
   while (ros::ok()) {
     // check if it is necessary calling callbacks
     ros::spinOnce();
@@ -119,10 +123,10 @@ int main(int argc, char **argv) {
       case 0: // set initial pose
         if (!initial_pose_init) break;
         //Trajectory computation
-        ee_trajectory = initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        ee_trajectory = initial_EE_point*Eigen::RowVectorXd::Ones(300);
         ROS_INFO("INIT POSE REACHING!!!");
         // trajectory publishing
-        rate.reset();
+        rate0.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
           actual_pose                         = ee_trajectory.col(i);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
@@ -130,7 +134,7 @@ int main(int argc, char **argv) {
           actual_posestamped_msg.header.seq   = i;
           actual_posestamped_msg.header.stamp = ros::Time::now();
           pub.publish(actual_posestamped_msg);
-          rate.sleep();
+          rate0.sleep();
         }
         ROS_INFO("INIT POSE REACHED!!!");
         initial_pose_init = false;
@@ -140,17 +144,18 @@ int main(int argc, char **argv) {
         if (!initial_pose_init) break;
         // f/t sensor calibration request
         if (ft_sensor_client.call(ft_sensor_srv)) ROS_INFO("F/T sensor calibration succesfull");
-        else ROS_WARN("F/T sensor calibration failed");
+        else ROS_ERROR("F/T sensor calibration failed");
         // define a vertical displacement
-        ee_vertical_disp << 0.0, 0.0, -0.25;
+        ee_vertical_disp << 0.0, 0.0, -0.5; // [m]
         // Trajectory computation
-        ee_trajectory = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        ee_trajectory = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(500, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(500);
         ROS_INFO("TOUCH REACHING!!!");
         // trajectory publishing
-        rate.reset();
+        index = 0;
+        rate1.reset();
         for (;;) {
-          if (index < steps_num) actual_pose  = ee_trajectory.col(++index);
-          else                   actual_pose  = ee_trajectory.col(index-1);
+          if (index < 500) actual_pose = ee_trajectory.col(++index);
+          else             actual_pose = ee_trajectory.col(index-1);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
           actual_posestamped_msg.header.seq   = index;
@@ -158,7 +163,7 @@ int main(int argc, char **argv) {
           pub.publish(actual_posestamped_msg);
           ros::spinOnce();
           if (std::fabs(force.z()) > force_z) break;
-          rate.sleep();
+          rate1.sleep();
         }
         ROS_INFO("TOUCH REACHED!!!");
         initial_pose_init = false;
@@ -183,8 +188,7 @@ int main(int argc, char **argv) {
         status = 3;
         break;
       default: break; // do nothing
-    }    
-    //ROS_INFO("WAITING INITIAL POSE");  
+    }
   }
   ROS_INFO("TASK COMPLETED");
 }
