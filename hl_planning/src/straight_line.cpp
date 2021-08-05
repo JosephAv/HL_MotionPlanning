@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
   //
   ros::Subscriber ft_data_sub = public_node.subscribe("ft_data", 1, ftDataCallback);
   //
-  ros::ServiceClient ft_sensor_client = public_node.serviceClient<ft_sensor::Calibration>("ft_sensor_calibration");
+  ros::ServiceClient ft_sensor_client = public_node.serviceClient<std_srvs::Trigger>("ft_sensor_calibration");
 
   //Starting and ending times definition
   double duration;                   // [s]
