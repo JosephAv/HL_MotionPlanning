@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
   time_step     = kPosStep / speed;
   sampling_time = 1.0 / time_step;
   steps_num     = static_cast<std::int32_t>(round(ee_displacement.norm() / kPosStep));
-
+  
   ros::Rate rate(sampling_time);
   Eigen::MatrixXd ee_trajectory(3,steps_num);
   Eigen::VectorXd actual_pose(3);
@@ -123,6 +123,7 @@ int main(int argc, char **argv) {
   geometry_msgs::PoseStamped actual_posestamped_msg;
   std::int16_t status = 0;
   Eigen::VectorXd ee_vertical_disp(3);
+  std::int32_t index = 0;
 
   while (ros::ok()) {
     // check if it is necessary calling callbacks
@@ -133,6 +134,7 @@ int main(int argc, char **argv) {
         if (!initial_pose_init) break;
         //Trajectory computation
         ee_trajectory = initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        ROS_INFO("INIT POSE REACHING!!!");
         // trajectory publishing
         rate.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
@@ -144,28 +146,32 @@ int main(int argc, char **argv) {
           pub.publish(actual_posestamped_msg);
           rate.sleep();
         }
+        ROS_INFO("INIT POSE REACHED!!!");
         initial_pose_init = false;
         status = 1;
         break;
       case 1: // touch the plate respecting the force limit
         if (!initial_pose_init) break;
         // define a vertical displacement
-        ee_vertical_disp << 0.0, 0.0, 1.0;
+        ee_vertical_disp << 0.0, 0.0, -0.25;
         // Trajectory computation
         ee_trajectory = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        ROS_INFO("TOUCH REACHING!!!");
         // trajectory publishing
         rate.reset();
-        for (std::int32_t i = 0; i < steps_num; ++i) {
-          actual_pose                         = ee_trajectory.col(i);
+        for (;;) {
+          if (index < steps_num) actual_pose  = ee_trajectory.col(++index);
+          else                   actual_pose  = ee_trajectory.col(index-1);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
-          actual_posestamped_msg.header.seq   = i;
+          actual_posestamped_msg.header.seq   = index;
           actual_posestamped_msg.header.stamp = ros::Time::now();
           pub.publish(actual_posestamped_msg);
           ros::spinOnce();
           if (std::fabs(force.z()) > force_z) break;
           rate.sleep();
         }
+        ROS_INFO("TOUCH REACHED!!!");
         initial_pose_init = false;
         status = 2;
         break;
@@ -189,7 +195,7 @@ int main(int argc, char **argv) {
         break;
       default: break; // do nothing
     }    
-    ROS_INFO("WAITING INITIAL POSE");  
+    //ROS_INFO("WAITING INITIAL POSE");  
   }
   ROS_INFO("TASK COMPLETED");
 }
