@@ -62,7 +62,7 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
-  <run_depend>ft_sensor</run_depend>
+  <exec_depend>ft_sensor</exec_depend>
   <build_depend>ft_sensor</build_depend>
 
 
