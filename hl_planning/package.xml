@@ -62,6 +62,9 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
+  <run_depend>ft_sensor</run_depend>
+  <build_depend>ft_sensor</build_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
