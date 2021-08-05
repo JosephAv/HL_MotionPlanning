@@ -50,10 +50,10 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>roscpp</build_depend>
-  <depend>std_msgs</build_depend>
-  <depend>geometry_msgs</build_depend>
-  <depend>ft_sensor</build_depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>ft_sensor</depend>
   <depend>std_srvs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
