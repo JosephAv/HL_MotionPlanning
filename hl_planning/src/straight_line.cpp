@@ -14,7 +14,7 @@
 #include <geometry_msgs/Wrench.h>
 #include <geometry_msgs/WrenchStamped.h>
 
-#include <ft_sensor/Calibration.h>
+#include <std_srvs/Trigger.h>
 
 Eigen::VectorXd initial_EE_point(3);
 bool initial_pose_init = false;
@@ -90,12 +90,9 @@ int main(int argc, char **argv) {
   geometry_msgs::Pose actual_pose_msg;
   geometry_msgs::PoseStamped actual_posestamped_msg;
   Eigen::VectorXd ee_vertical_disp(3);
-  ft_sensor::Calibration ft_sensor_srv;
   std::int16_t status = 0;
   std::int32_t index = 0;
   
-  ft_sensor_srv.request.dummy = 0;
-
   if (!node.getParam("contact_force", force_z))               ROS_ERROR("Failed to get contact_force param");
   if (!node.getParam("ee_displacement_x", ee_displacement_x)) ROS_ERROR("Failed to get ee_final_pos_x param");
   if (!node.getParam("ee_displacement_y", ee_displacement_y)) ROS_ERROR("Failed to get ee_final_pos_y param");
@@ -146,7 +143,7 @@ int main(int argc, char **argv) {
       case 1: // touch the plate respecting the force limit
         if (!initial_pose_init) break;
         // f/t sensor calibration request
-        if (ft_sensor_client.call(ft_sensor_srv)) ROS_INFO("F/T sensor calibration succesfull");
+        if (ft_sensor_client.call()) ROS_INFO("F/T sensor calibration succesfull");
         else ROS_ERROR("F/T sensor calibration failed");
         // define a vertical displacement
         ee_vertical_disp << 0.0, 0.0, -0.5; // [m]

@@ -9,13 +9,13 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   std_msgs
   geometry_msgs  
   tf
   tf_conversions
   eigen_conversions
   ft_sensor
+  std_srvs
 )
 
 ## System dependencies are found with CMake's conventions
