@@ -11,6 +11,8 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Pose.h>
 
+const static Eigen::IOFormat CSVFormat(Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", "\n");
+
 
 #define NUM_ROWS 24
 #define NUM_COLS 128
@@ -20,6 +22,8 @@ std::ifstream file_stream(matrix_name);
 std::string data_row_str;
 std::vector<std::string> data_row;
 Eigen::MatrixXd data_matrix;
+
+Eigen::Matrix3d pre_rot;
 
 Eigen::MatrixXd ee_trajectory(6, NUM_COLS);
 
@@ -106,6 +110,7 @@ geometry_msgs::Pose convert_vector_to_pose(Eigen::VectorXd input_vec){
     Eigen::Matrix3d rotation = Eigen::Matrix3d(Eigen::AngleAxisd(input_vec[5], Eigen::Vector3d::UnitZ())
         * Eigen::AngleAxisd(input_vec[4], Eigen::Vector3d::UnitY())
         * Eigen::AngleAxisd(input_vec[3], Eigen::Vector3d::UnitX()));
+    rotation = pre_rot*rotation;
     output_affine.linear() = rotation;    
     
     // Converting to geometry_msgs and returning
@@ -127,10 +132,11 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg)
         tf::poseMsgToEigen(msg_pose,input_affine);
         traslazione = input_affine.translation();
         mat_rotazione = input_affine.rotation();
-        rpy = mat_rotazione.eulerAngles(0, 1, 2);
+        mat_rotazione = pre_rot*mat_rotazione;
+        rpy = mat_rotazione.eulerAngles(2, 1, 0);
 
         
-        initial_EE_point << traslazione[0], traslazione[1], traslazione[2], rpy[0], rpy[1], rpy[2];
+        initial_EE_point << traslazione[0], traslazione[1], traslazione[2], rpy[2], rpy[1], rpy[0];
         std::cout << "Starting pose read from topic:" << std::endl;
         std::cout << initial_EE_point << std::endl;
 
@@ -142,6 +148,7 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg)
 
 int main(int argc, char **argv)
 {
+    pre_rot << 1, 0, 0, 0, -1, 0, 0, 0, -1;
     //Initialize the node
     ROS_INFO("NODE INITIALIZATION");
     ros::init(argc, argv, "HL_planner");
@@ -233,9 +240,9 @@ int main(int argc, char **argv)
                     std::cout << "First Frame" << std::endl;
                     std::cout << actual_pose_msg << std::endl;
                 }
-                rate.sleep();
                 actual_posestamped_msg.header.stamp = ros::Time::now();
                 pub.publish(actual_posestamped_msg);
+                rate.sleep();
             }
 
             break;
@@ -245,5 +252,11 @@ int main(int argc, char **argv)
     }
     
     ROS_INFO("TASK COMPLETED");
+
+    std::ofstream myfile_1;
+    myfile_1.open("/home/mb/catkin_ws/src/hl_planning/src/traiettoria_calcolata.csv");
+    myfile_1 << ee_trajectory.format(CSVFormat);
+    myfile_1.close();
+
 
 }
