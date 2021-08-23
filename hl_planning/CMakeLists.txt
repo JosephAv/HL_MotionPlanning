@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   tf_conversions
   eigen_conversions
-  ft_sensor
 )
 
 ## System dependencies are found with CMake's conventions
