@@ -20,25 +20,21 @@ class image_converter:
 
   def callback(self,data):
     try:
-      cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+      cv_image = self.bridge.imgmsg_to_cv2(data, encoding="passthrough")
     except CvBridgeError as e:
       print(e)
 
     (rows,cols,channels) = cv_image.shape
-    if cols > 60 and rows > 60 :
-      cv.circle(cv_image, (50,50), 10, 255)
-
+    
     cv.imshow("Image window", cv_image)
     cv.waitKey(3)
 
-    try:
-      self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
-    except CvBridgeError as e:
-      print(e)
+    # try:
+    #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
+    # except CvBridgeError as e:
+    #   print(e)
 
 def main(args):
-  print("SAVE IMAGE DATA MAIN BODY")
-
   ic = image_converter()
   rospy.init_node('image_converter', anonymous=True)
   try:
