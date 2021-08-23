@@ -2,6 +2,8 @@
 
   <group ns="franka">
     
+    <node pkg="hl_planning" type="save_image_data.csv" name="save_image_data">
+
     <arg name="robot_ip" default="172.16.0.2"/>
     <arg name="load_gripper" default="false"/>
     <include file="$(find franka_control)/launch/franka_control.launch" >
