@@ -36,6 +36,8 @@ class image_converter:
       print(e)
 
 def main(args):
+  print("SAVE IMAGE DATA MAIN BODY")
+
   ic = image_converter()
   rospy.init_node('image_converter', anonymous=True)
   try:
