@@ -15,8 +15,13 @@ class image_converter:
   def __init__(self):
     # self.image_pub = rospy.Publisher("image_topic_2",Image)
 
-    self.bridge = CvBridge()
-    self.image_sub = rospy.Subscriber("/franka/camera/image_raw", Image,self.callback)
+    self.bridge     = CvBridge()
+    self.image_sub  = rospy.Subscriber("/franka/camera/image_raw", Image,self.callback)
+    self.first      = True
+    self.idx        = 0
+    self.old_img    = np.zeros((0,0))
+    self.mag_file   = open("mag_data.csv", "w")
+    self.ang_file   = open("ang_data.csv", "w")
 
   def callback(self,data):
     try:
@@ -25,16 +30,34 @@ class image_converter:
       print(e)
 
     (rows,cols,channels) = cv_image.shape
-    
-    cv.imshow("Image window", cv_image)
-    cv.waitKey(3)
+    rospy.logwarn("rows: %s || cols: %s || channels: %s", str(rows), str(cols), str(channels))
+
+    if self.first == True:
+      self.first = False
+      self.old_img = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
+    else:
+      self.idx      = self.idx + 1
+      new_img       = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
+      flow          = cv.calcOpticalFlowFarneback(self.old_img, new_img, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+      mag, ang      = cv.cartToPolar(flow[...,0], flow[...,1])
+      mag           = np.hstack((mag, np.ones((mag.shape[0],1)) * self.idx))
+      ang           = np.hstack((ang, np.ones((ang.shape[0],1)) * self.idx))
+      self.old_img  = new_img
+
+      np.savetxt(self.mag_file, mag, delimiter = ',')
+      np.savetxt(self.ang_file, ang, delimiter = ',')
 
     # try:
     #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
     # except CvBridgeError as e:
     #   print(e)
+    #   
+  def __del__(self):
+    self.mag_file.close()
+    self.ang_file.close()
 
 def main(args):
+  rospy.logwarn("Save Imge node initialization")
   ic = image_converter()
   rospy.init_node('image_converter', anonymous=True)
   try:
