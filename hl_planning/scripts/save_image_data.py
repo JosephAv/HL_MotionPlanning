@@ -60,4 +60,8 @@ def main(args):
   cv.destroyAllWindows()
 
 if __name__ == '__main__':
+  f = open("cino.csv","w")
+  f.write("Now the file has more content!")
+  f.close()
+
   main(sys.argv)
