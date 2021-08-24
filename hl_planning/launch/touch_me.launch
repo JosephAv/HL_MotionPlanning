@@ -1,3 +1,7 @@
 <launch>
+
+  <node name="play_back" pkg="rosbag" type="play"/>
+
   
+
 </launch>
