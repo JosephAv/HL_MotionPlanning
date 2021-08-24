@@ -13,8 +13,6 @@ from cv_bridge import CvBridge, CvBridgeError
 class image_converter:
 
   def __init__(self):
-    # self.image_pub = rospy.Publisher("image_topic_2",Image)
-
     self.bridge     = CvBridge()
     self.image_sub  = rospy.Subscriber("/franka/camera/image_raw", Image,self.callback)
     self.first      = True
@@ -47,11 +45,6 @@ class image_converter:
       np.savetxt(self.mag_file, mag, delimiter = ',')
       np.savetxt(self.ang_file, ang, delimiter = ',')
 
-    # try:
-    #   self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
-    # except CvBridgeError as e:
-    #   print(e)
-    #   
   def __del__(self):
     self.mag_file.close()
     self.ang_file.close()
