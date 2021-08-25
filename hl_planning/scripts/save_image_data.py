@@ -51,7 +51,8 @@ class image_converter:
       cv.imwrite("img_%d.jpg" % (self.idx), self.old_img)
 
   def ftCallback(self,data):
-    f = data.wrench.
+    out_data  = "%f,%f,%f" % (data.wrench.force.x, data.wrench.force.y, data.wrench.force.z)
+    self.ft_file.write(out_data)
 
   def __del__(self):
     self.mag_file.close()
@@ -69,8 +70,4 @@ def main(args):
   cv.destroyAllWindows()
 
 if __name__ == '__main__':
-  f = open("cino.csv","w")
-  f.write("Now the file has more content!")
-  f.close()
-
   main(sys.argv)
