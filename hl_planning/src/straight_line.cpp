@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
   sampling_time      = ee_displacement.norm() / (duration * kPosStep);
   steps_num          = static_cast<std::int32_t>(round(ee_displacement.norm() / kPosStep));
   
-  Eigen::MatrixXd ee_trajectory_0(3,300);
+  Eigen::MatrixXd ee_trajectory_0(3,100);
   Eigen::MatrixXd ee_trajectory_1(3,500);
   Eigen::MatrixXd ee_trajectory_2(3,steps_num);
 
@@ -124,11 +124,11 @@ int main(int argc, char **argv) {
       case 0: // set initial pose
         if (!initial_pose_init) break;
         //Trajectory computation
-        ee_trajectory_0 = initial_EE_point*Eigen::RowVectorXd::Ones(300);
+        ee_trajectory_0 = initial_EE_point*Eigen::RowVectorXd::Ones(100);
         ROS_INFO("INIT POSE REACHING!!!");
         // trajectory publishing
         rate0.reset();
-        for (std::int32_t i = 0; i < 300; ++i) {
+        for (std::int32_t i = 0; i < 100; ++i) {
           actual_pose                         = ee_trajectory_0.col(i);
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
