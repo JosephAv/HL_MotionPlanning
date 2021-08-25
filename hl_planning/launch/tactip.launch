@@ -2,7 +2,7 @@
 
   <group ns="franka">
     
-    <node pkg="hl_planning" type="save_image_data.py" name="save_image_data"/>
+    <node pkg="hl_planning" type="save_image_data.py" name="save_image_data" output="screen"/>
 
     <arg name="robot_ip" default="172.16.0.2"/>
     <arg name="load_gripper" default="false"/>
@@ -14,7 +14,7 @@
     <rosparam command="load" file="$(find panda_controllers)/config/panda_controllers.yaml" />
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_controller_cino"/>
 
-    <node pkg="cv_camera" type="cv_camera_node" name="camera">
+    <node pkg="cv_camera" type="cv_camera_node" name="camera" output="screen">
       <param name="device_id" type="int" value="1"/>
     </node>
 

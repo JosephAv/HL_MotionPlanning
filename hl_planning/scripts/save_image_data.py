@@ -50,8 +50,10 @@ class image_converter:
 
       cv.imwrite("img_%d.jpg" % (self.idx), self.old_img)
 
+      rospy.logwarn("IDX: %d" % (self.idx))
+
   def ftCallback(self,data):
-    out_data  = "%f,%f,%f" % (data.wrench.force.x, data.wrench.force.y, data.wrench.force.z)
+    out_data  = "%f,%f,%f\n" % (data.wrench.force.x, data.wrench.force.y, data.wrench.force.z)
     self.ft_file.write(out_data)
 
   def __del__(self):
