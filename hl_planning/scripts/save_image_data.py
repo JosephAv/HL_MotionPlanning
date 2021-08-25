@@ -30,8 +30,8 @@ class image_converter:
     except CvBridgeError as e:
       print(e)
 
-    (rows,cols,channels) = cv_image.shape
-    rospy.logwarn("rows: %s || cols: %s || channels: %s", str(rows), str(cols), str(channels))
+    # (rows,cols,channels) = cv_image.shape
+    # rospy.logwarn("rows: %s || cols: %s || channels: %s", str(rows), str(cols), str(channels))
 
     if self.first == True:
       self.first = False
