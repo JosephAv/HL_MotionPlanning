@@ -2,6 +2,6 @@
 
   <node pkg="hl_planning" type="save_image_data.py" name="save_image_data"/>
 
-  <node name="play_back" pkg="rosbag" type="play" args="/mnt/c/Users/USER/Documents/GitHub/TouchMe/data/bag/2021-08-05-18-06-26.bag"/>
+  <node name="play_back" pkg="rosbag" type="play" args="--rate=0.1 /mnt/c/Users/USER/Documents/GitHub/TouchMe/data/bag/2021-08-05-18-06-26.bag"/>
 
 </launch>
