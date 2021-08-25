@@ -8,20 +8,23 @@ import cv2 as cv
 import numpy as np
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
+from geometry_msgs.msg import WrenchStamped
 from cv_bridge import CvBridge, CvBridgeError
 
 class image_converter:
 
   def __init__(self):
     self.bridge     = CvBridge()
-    self.image_sub  = rospy.Subscriber("/franka/camera/image_raw", Image,self.callback)
+    self.image_sub  = rospy.Subscriber("/franka/camera/image_raw", Image, self.imgCallback)
+    self.ft_sub     = rospy.Subscriber("/franka/ft_data", WrenchStamped, self.ftCallback)
     self.first      = True
     self.idx        = 0
     self.old_img    = np.zeros((0,0))
     self.mag_file   = open("mag_data.csv", "w")
     self.ang_file   = open("ang_data.csv", "w")
+    self.ft_file    = open("ft_data.csv",  "w")
 
-  def callback(self,data):
+  def imgCallback(self,data):
     try:
       cv_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="bgr8")
     except CvBridgeError as e:
@@ -47,9 +50,13 @@ class image_converter:
 
       cv.imwrite("img_%d.jpg" % (self.idx), self.old_img)
 
+  def ftCallback(self,data):
+    f = data.wrench.
+
   def __del__(self):
     self.mag_file.close()
     self.ang_file.close()
+    self.ft_file.close()
 
 def main(args):
   rospy.logwarn("Save Imge node initialization")
