@@ -2,7 +2,7 @@
 
   <group ns="franka">
     
-    <node pkg="hl_planning" type="save_image_data.py" name="save_image_data" output="screen"/>
+    <!-- <node pkg="hl_planning" type="save_image_data.py" name="save_image_data" output="screen"/> -->
 
     <arg name="robot_ip" default="172.16.0.2"/>
     <arg name="load_gripper" default="false"/>
@@ -14,7 +14,7 @@
     <rosparam command="load" file="$(find panda_controllers)/config/panda_controllers.yaml" />
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_controller_cino"/>
 
-    <node pkg="cv_camera" type="cv_camera_node" name="camera" output="screen">
+    <node pkg="cv_camera" type="cv_camera_node" name="camera">
       <param name="device_id" type="int" value="1"/>
     </node>
 
@@ -22,7 +22,7 @@
       <param name="ip" value="172.16.0.4"/>
     </node>
 
-    <node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find franka_example_controllers)/launch/robot.rviz"/>
+    <!-- <node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find franka_example_controllers)/launch/robot.rviz"/> -->
 
     <node pkg="hl_planning" type="straight_line" name ="tactip_node_1" output="screen">
       <param name = "contact_force"     type = "double" value = "0.5" />
@@ -30,6 +30,8 @@
       <param name = "ee_displacement_y" type = "double" value = "0.25" />
       <param name = "duration"          type = "double" value = "10.0" />
     </node>
+
+  <node pkg="rosbag" name="rosbag_record" type="record" args="/franka/camera/image_raw /franka/ft_data"/>
 
   </group>
 
