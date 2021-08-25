@@ -31,7 +31,7 @@
       <param name = "duration"          type = "double" value = "10.0" />
     </node>
 
-  <node pkg="rosbag" name="rosbag_record" type="record" args="/franka/camera/image_raw /franka/ft_data"/>
+    <node pkg="rosbag" name="rosbag_record" type="record" args="/franka/camera/image_raw /franka/ft_data"/>
 
   </group>
 
