@@ -45,6 +45,8 @@ class image_converter:
       np.savetxt(self.mag_file, mag, delimiter = ',')
       np.savetxt(self.ang_file, ang, delimiter = ',')
 
+      cv.imwrite("img_%d.jpg" % (self.idx), self.old_img)
+
   def __del__(self):
     self.mag_file.close()
     self.ang_file.close()
