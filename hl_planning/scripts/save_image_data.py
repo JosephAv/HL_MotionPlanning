@@ -39,7 +39,7 @@ class image_converter:
     else:
       self.idx = self.idx + 1
       
-      if self.idx < 420 || self.idx > 449:
+      if self.idx < 420 or self.idx > 449:
         return
       
       new_img       = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
