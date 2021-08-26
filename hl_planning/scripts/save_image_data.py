@@ -39,8 +39,8 @@ class image_converter:
     else:
       self.idx = self.idx + 1
       
-      if self.idx < 420 or self.idx > 449:
-        return
+      # if self.idx < 200 or self.idx > 449:
+      #   return
       
       new_img       = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
       flow          = cv.calcOpticalFlowFarneback(self.old_img, new_img, None, 0.5, 3, 15, 3, 5, 1.2, 0)
