@@ -110,55 +110,6 @@ int main(int argc, char **argv) {
     ros::spinOnce();
     // switch on status to plan differently based on actual motion condition
     switch (status) {
-      case 0: // set initial pose
-        if (!initial_pose_init) break;
-        //Trajectory computation
-        ee_trajectory_0 = initial_EE_point*Eigen::RowVectorXd::Ones(100);
-        ROS_INFO("INIT POSE REACHING!!!");
-        // trajectory publishing
-        rate0.reset();
-        for (std::int32_t i = 0; i < 100; ++i) {
-          actual_pose                         = ee_trajectory_0.col(i);
-          actual_pose_msg                     = convertVectorToPose(actual_pose);
-          actual_posestamped_msg.pose         = actual_pose_msg;
-          actual_posestamped_msg.header.seq   = i;
-          actual_posestamped_msg.header.stamp = ros::Time::now();
-          pub.publish(actual_posestamped_msg);
-          rate0.sleep();
-        }
-        ROS_INFO("INIT POSE REACHED!!!");
-        initial_pose_init = false;
-        status = 1;
-        break;
-      case 1: // touch the plate respecting the force limit
-        if (!initial_pose_init) break;
-        // f/t sensor calibration request
-        if (ft_sensor_client.call(trigger)) ROS_INFO("F/T sensor calibration succesfull");
-        else ROS_ERROR("F/T sensor calibration failed");
-        // define a vertical displacement
-        ee_vertical_disp << 0.0, 0.0, -0.5; // [m]
-        // Trajectory computation
-        ee_trajectory_1 = ee_vertical_disp*Eigen::RowVectorXd::LinSpaced(500, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(500);
-        ROS_INFO("TOUCH REACHING!!!");
-        // trajectory publishing
-        index = 0;
-        rate1.reset();
-        for (;;) {
-          if (index < 500) actual_pose = ee_trajectory_1.col(++index);
-          else             actual_pose = ee_trajectory_1.col(index-1);
-          actual_pose_msg                     = convertVectorToPose(actual_pose);
-          actual_posestamped_msg.pose         = actual_pose_msg;
-          actual_posestamped_msg.header.seq   = index;
-          actual_posestamped_msg.header.stamp = ros::Time::now();
-          pub.publish(actual_posestamped_msg);
-          ros::spinOnce();
-          if (std::fabs(force.z()) > force_z) break;
-          rate1.sleep();
-        }
-        ROS_INFO("TOUCH REACHED!!!");
-        initial_pose_init = false;
-        status = 2;
-        break;
       case 2: // move along the ee_displacement direction
         if (!initial_pose_init) break;
         //Trajectory computation
