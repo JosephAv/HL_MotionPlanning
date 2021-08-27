@@ -74,8 +74,7 @@ int main(int argc, char **argv) {
   std::int32_t steps_num;            // [adimensional]
   double kPosStep{0.001};            // [m]
   double sampling_time;              // [Hz]
-  std_srvs::Trigger trigger;
-
+  
   Eigen::VectorXd actual_pose(3);
   geometry_msgs::Pose actual_pose_msg;
   geometry_msgs::PoseStamped actual_posestamped_msg;
