@@ -145,7 +145,7 @@ include_directories(
 add_executable(hl_planning src/hl_planning.cpp)
 add_executable(straight_line src/straight_line.cpp)
 add_executable(hl_obstacle src/hl_obstacle.cpp)
-add_executable(test_cartesian_pose src/test_cartesian_pose.cpp)
+add_executable(test_cartesian_pose src/test_cartesian_pose_controller.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
