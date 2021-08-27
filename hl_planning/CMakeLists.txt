@@ -145,6 +145,7 @@ include_directories(
 add_executable(hl_planning src/hl_planning.cpp)
 add_executable(straight_line src/straight_line.cpp)
 add_executable(hl_obstacle src/hl_obstacle.cpp)
+add_executable(test_cartesian_pose src/test_cartesian_pose.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,7 +155,7 @@ add_executable(hl_obstacle src/hl_obstacle.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(straight_line ${catkin_EXPORTED_TARGETS})
+#add_dependencies(straight_line ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
@@ -164,6 +165,7 @@ target_link_libraries(hl_planning
     ${catkin_LIBRARIES}
 )
 target_link_libraries(straight_line ${catkin_LIBRARIES})
+target_link_libraries(test_cartesian_pose ${catkin_LIBRARIES})
 target_link_libraries(hl_obstacle ${catkin_LIBRARIES})
 
 #############
