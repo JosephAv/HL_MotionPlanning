@@ -53,7 +53,7 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg) {
 
 int main(int argc, char **argv) {
   //Initialize the node
-  ROS_INFO("Test **Cartesian pose controller**...node initialization...");
+  ROS_INFO("Test planner for cartesian pose controller...node initialization...");
   ros::init(argc, argv, "Test_planner");
 
   ros::NodeHandle node("~");  // private namespace (i.e., "/node_name") node handle
@@ -104,6 +104,20 @@ int main(int argc, char **argv) {
   ros::Rate rate1(10); // [Hz]
   ros::Rate rate2(sampling_time); // [Hz]
   
+  // qi = 1.02;
+  // qf = qi + 0.20;
+  // tf = 5;
+  // a1 = 0;
+  // a2 = 3*(qf-qi)/tf^2;
+  // a3 = -2*(qf-qi)/tf^3;
+  // a0 = qi;
+  // ee_trajectory_2 = a0 + a1*t + a2*t.^2 + a3*t.^3;
+  
+  double a1{0.0}; //final velocity equal to zero
+  double a2{3*ee_displacement_y/(duration*duration)};
+  double a3{-2*ee_displacement_y/(duration*duration*duration)};
+  Eigen::Vector3d tmp_pos;
+
   while (ros::ok()) {
     // check if it is necessary calling callbacks
     ros::spinOnce();
@@ -116,7 +130,10 @@ int main(int argc, char **argv) {
         // trajectory publishing
         rate2.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
-          actual_pose                         = ee_trajectory_2.col(i);
+          double t{(double)(steps_num)*sampling_time};
+          double tmp_pos_y = initial_EE_point(1) + a1*t + a2*t*t + a3*t*t*t;
+          tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
+          actual_pose                         = tmp_pos;
           actual_pose_msg                     = convertVectorToPose(actual_pose);
           actual_posestamped_msg.pose         = actual_pose_msg;
           actual_posestamped_msg.header.seq   = i;
