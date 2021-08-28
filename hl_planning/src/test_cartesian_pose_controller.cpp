@@ -104,14 +104,20 @@ int main(int argc, char **argv) {
   ros::Rate rate1(10); // [Hz]
   ros::Rate rate2(sampling_time); // [Hz]
   
-  // qi = 1.02;
-  // qf = qi + 0.20;
-  // tf = 5;
-  // a1 = 0;
-  // a2 = 3*(qf-qi)/tf^2;
-  // a3 = -2*(qf-qi)/tf^3;
+  // qi = initial_EE_point;
+  // qf = initial_EE_point + ee_displacement;
+  // ti = 0;
+  // tf = duration;
   // a0 = qi;
-  // ee_trajectory_2 = a0 + a1*t + a2*t.^2 + a3*t.^3;
+  // a1 = 0;
+  // a2 = 0;
+  // a3 = 10*ee_displacement/duration^3;
+  // a4 = -15*ee_displacement/duration^4;
+  // a5 = 6*duration/duration^5;
+  // 
+  // q(t)   = a0   + a1*t   + a2*t^2    + a3*t^3   + a4*t^4   + a5*t^5 = initial_EE_point + a3*t^3   + a4*t^4   + a5*t^5
+  // dq(t)  = a1   + 2*a2*t + 3*a3*t^2  + 4*a4*t^3 + 5*a5*t^4          = 3*a3*t^2  + 4*a4*t^3  + 5*a5*t^4
+  // ddq(t) = 2*a2 + 6*a3*t + 12*a4*t^2 + 20*a5*t^3                    = 6*a3*t    + 12*a4*t^2 + 20*a5*t^3
   
   double a3{10*ee_displacement_y/(duration*duration*duration)};
   double a4{-15*ee_displacement_y/(duration*duration*duration*duration)};
