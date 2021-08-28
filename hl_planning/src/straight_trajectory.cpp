@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
   double a5{6*ee_displacement_y/(duration*duration*duration*duration*duration)};
 
   Eigen::Vector3d tmp_pos;
-  std::ofstream out_trajectory{"out_trajectory.csv"};  
+  std::ofstream out_trajectory{"out_trajectory.csv"};
 
   while (ros::ok()) {
     // check if it is necessary calling callbacks
