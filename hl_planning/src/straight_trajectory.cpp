@@ -129,31 +129,24 @@ int main(int argc, char **argv) {
   while (ros::ok()) {
     // check if it is necessary calling callbacks
     ros::spinOnce();
-    // switch on status to plan differently based on actual motion condition
-    switch (status) {
-      case 2: // move along the ee_displacement direction
-        if (!initial_pose_init) break;
-        //Trajectory computation
-        //ee_trajectory_2 = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
-        // trajectory publishing
-        rate2.reset();
-        for (std::int32_t i = 0; i < steps_num; ++i) {
-          double t{(double)(steps_num)*sampling_time};
-          double tmp_pos_y = initial_EE_point(1) + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
-          out_trajectory << t << "," << tmp_pos_y << "\n";
-          tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
-          actual_pose                         = tmp_pos;
-          actual_pose_msg                     = convertVectorToPose(actual_pose);
-          actual_posestamped_msg.pose         = actual_pose_msg;
-          actual_posestamped_msg.header.seq   = i;
-          actual_posestamped_msg.header.stamp = ros::Time::now();
-          pub.publish(actual_posestamped_msg);
-          rate2.sleep();
-        }
-        initial_pose_init = false;
-        status = 3;
-        break;
-      default: break; // do nothing
+    //
+    if (!initial_pose_init) continue;
+    //Trajectory computation
+    //ee_trajectory_2 = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+    // trajectory publishing
+    rate2.reset();
+    for (std::int32_t i = 0; i < steps_num; ++i) {
+      double t{(double)(steps_num)*sampling_time};
+      double tmp_pos_y = initial_EE_point(1) + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
+      out_trajectory << t << "," << tmp_pos_y << "\n";
+      tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
+      actual_pose                         = tmp_pos;
+      actual_pose_msg                     = convertVectorToPose(actual_pose);
+      actual_posestamped_msg.pose         = actual_pose_msg;
+      actual_posestamped_msg.header.seq   = i;
+      actual_posestamped_msg.header.stamp = ros::Time::now();
+      pub.publish(actual_posestamped_msg);
+      rate2.sleep();
     }
   }
   out_trajectory.close();
