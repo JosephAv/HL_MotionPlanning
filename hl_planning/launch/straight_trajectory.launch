@@ -12,10 +12,10 @@
     <rosparam command="load" file="$(find panda_controllers)/config/panda_controllers.yaml" />
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_pose_controller_cino"/>
 
-    <node pkg="hl_planning" type="test_cartesian_pose" name ="tactip_node_1" output="screen">
+    <node pkg="hl_planning" type="straight_trajectory" name ="straight_trajectory_planner" output="screen">
       <param name = "contact_force"     type = "double" value = "0.5" />
       <param name = "ee_displacement_x" type = "double" value = "0.0" />
-      <param name = "ee_displacement_y" type = "double" value = "0.25" />
+      <param name = "ee_displacement_y" type = "double" value = "0.20" />
       <param name = "duration"          type = "double" value = "10.0" />
     </node>
 

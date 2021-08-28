@@ -53,8 +53,8 @@ void robotPoseCallback(const geometry_msgs::PoseStamped& msg) {
 
 int main(int argc, char **argv) {
   //Initialize the node
-  ROS_INFO("Test planner for cartesian pose controller...node initialization...");
-  ros::init(argc, argv, "Test_planner");
+  ROS_INFO("Straight trajectory planner node initialization");
+  ros::init(argc, argv, "straight_trajectory_planner");
 
   ros::NodeHandle node("~");  // private namespace (i.e., "/node_name") node handle
   ros::NodeHandle public_node;// public namespace (i.e., "/" or "/my_ns") node handle 
