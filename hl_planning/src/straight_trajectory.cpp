@@ -124,6 +124,7 @@ int main(int argc, char **argv) {
   double a5{6*ee_displacement_y/(duration*duration*duration*duration*duration)};
 
   Eigen::Vector3d tmp_pos;
+  std::ofstream out_trajectory{"out_trajectory.csv"};  
 
   while (ros::ok()) {
     // check if it is necessary calling callbacks
@@ -139,6 +140,7 @@ int main(int argc, char **argv) {
         for (std::int32_t i = 0; i < steps_num; ++i) {
           double t{(double)(steps_num)*sampling_time};
           double tmp_pos_y = initial_EE_point(1) + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
+          out_trajectory << t << "," << tmp_pos_y << "\n";
           tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
           actual_pose                         = tmp_pos;
           actual_pose_msg                     = convertVectorToPose(actual_pose);
@@ -154,5 +156,6 @@ int main(int argc, char **argv) {
       default: break; // do nothing
     }
   }
+  out_trajectory.close();
   ROS_INFO("TASK COMPLETED");
 }
