@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
         rate2.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
           double t{(double)(steps_num)*sampling_time};
-          double tmp_pos_y = initial_EE_point(1) + a1*t + a2*t*t + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
+          double tmp_pos_y = initial_EE_point(1) + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
           tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
           actual_pose                         = tmp_pos;
           actual_pose_msg                     = convertVectorToPose(actual_pose);
