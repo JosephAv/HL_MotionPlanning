@@ -165,7 +165,7 @@ target_link_libraries(hl_planning
     ${catkin_LIBRARIES}
 )
 target_link_libraries(straight_line ${catkin_LIBRARIES})
-target_link_libraries(test_cartesian_pose ${catkin_LIBRARIES})
+target_link_libraries(straight_trajectory ${catkin_LIBRARIES})
 target_link_libraries(hl_obstacle ${catkin_LIBRARIES})
 
 #############
