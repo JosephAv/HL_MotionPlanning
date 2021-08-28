@@ -113,9 +113,10 @@ int main(int argc, char **argv) {
   // a0 = qi;
   // ee_trajectory_2 = a0 + a1*t + a2*t.^2 + a3*t.^3;
   
-  double a1{0.0}; //final velocity equal to zero
-  double a2{3*ee_displacement_y/(duration*duration)};
-  double a3{-2*ee_displacement_y/(duration*duration*duration)};
+  double a3{10*ee_displacement_y/(duration*duration*duration)};
+  double a4{-15*ee_displacement_y/(duration*duration*duration*duration)};
+  double a5{6*ee_displacement_y/(duration*duration*duration*duration*duration)};
+
   Eigen::Vector3d tmp_pos;
 
   while (ros::ok()) {
@@ -126,12 +127,12 @@ int main(int argc, char **argv) {
       case 2: // move along the ee_displacement direction
         if (!initial_pose_init) break;
         //Trajectory computation
-        ee_trajectory_2 = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
+        //ee_trajectory_2 = ee_displacement*Eigen::RowVectorXd::LinSpaced(steps_num, 0, 1) + initial_EE_point*Eigen::RowVectorXd::Ones(steps_num);
         // trajectory publishing
         rate2.reset();
         for (std::int32_t i = 0; i < steps_num; ++i) {
           double t{(double)(steps_num)*sampling_time};
-          double tmp_pos_y = initial_EE_point(1) + a1*t + a2*t*t + a3*t*t*t;
+          double tmp_pos_y = initial_EE_point(1) + a1*t + a2*t*t + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
           tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
           actual_pose                         = tmp_pos;
           actual_pose_msg                     = convertVectorToPose(actual_pose);
