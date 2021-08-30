@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
   Eigen::VectorXd ee_displacement(3);// [m]
   std::int32_t steps_num;            // [adimensional]
   double kPosStep{0.001};            // [m]
-  double sampling_time;              // [Hz]
+  double traj_rate;              // [Hz]
   
   Eigen::VectorXd actual_pose(3);
   geometry_msgs::Pose actual_pose_msg;
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
   ee_displacement(0) = ee_displacement_x;
   ee_displacement(1) = ee_displacement_y;
   ee_displacement(2) = 0;
-  sampling_time      = ee_displacement.norm() / (duration * kPosStep);
+  traj_rate          = ee_displacement.norm() / (duration * kPosStep);
   steps_num          = static_cast<std::int32_t>(round(ee_displacement.norm() / kPosStep));
   
   Eigen::MatrixXd ee_trajectory_0(3,100);
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 
   ros::Rate rate0(10); // [Hz]
   ros::Rate rate1(10); // [Hz]
-  ros::Rate rate2(sampling_time); // [Hz]
+  ros::Rate rate2(traj_rate); // [Hz]
   
   // qi = initial_EE_point;
   // qf = initial_EE_point + ee_displacement;
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
     // trajectory publishing
     rate2.reset();
     for (std::int32_t i = 0; i < steps_num; ++i) {
-      double t{(double)(steps_num)*sampling_time};
+      double t{(double)(i)*(1.0/traj_rate)};
       double tmp_pos_y = initial_EE_point(1) + a3*t*t*t + a4*t*t*t*t + a5*t*t*t*t*t;
       out_trajectory << t << "," << tmp_pos_y << "\n";
       tmp_pos << initial_EE_point(0), tmp_pos_y, initial_EE_point(2);
