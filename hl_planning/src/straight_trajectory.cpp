@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   Eigen::VectorXd final_EE_point(3); // [m]
   Eigen::VectorXd ee_displacement(3);// [m]
   std::int32_t steps_num;            // [adimensional]
-  double kPosStep{0.001};            // [m]
+  double kPosStep{0.01};            // [m]
   double traj_rate;              // [Hz]
   
   Eigen::VectorXd actual_pose(3);
